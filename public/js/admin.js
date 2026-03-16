@@ -176,7 +176,6 @@ async function viewAddons(userId, email) {
     addonsList.innerHTML = `<ul class="addon-list">${data.addons.map(a => `<li class="addon-item">
       <div class="addon-info">
         <div class="addon-name">${esc(a.name)}</div>
-        <div class="addon-url">${esc(a.transportUrl)}</div>
         <div class="addon-tags">
           ${a.protected ? '<span class="badge badge-pending">protected</span>' : ''}
           ${a.official ? '<span class="badge badge-ok">official</span>' : ''}
@@ -225,7 +224,6 @@ async function loadConfig() {
       <ul class="addon-list">${addons.map((a, i) => `<li class="addon-item">
         <div class="addon-info">
           <span class="addon-name">${esc(a.manifest?.name || a.manifest?.id || 'Unknown')}</span>
-          <div class="addon-url">${esc(a.transportUrl)}</div>
         </div>
         <button class="btn btn-sm btn-danger" data-action="remove-config-addon" data-index="${i}">Remove</button>
       </li>`).join('')}</ul>`;
