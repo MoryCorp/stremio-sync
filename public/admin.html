@@ -5,515 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Admin - Stremio Config Manager</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0f;
-      color: #e0e0e0;
-      min-height: 100vh;
-      padding: 1.5rem;
-    }
-    h1 { font-size: 1.3rem; color: #fff; margin-bottom: 1rem; }
-    h2 { font-size: 1.1rem; color: #fff; margin-bottom: 0.75rem; }
-
-    /* Auth bar */
-    .auth-bar {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      max-width: 500px;
-    }
-    .auth-bar input {
-      flex: 1;
-      padding: 0.5rem;
-      background: #1a1a24;
-      border: 1px solid #333;
-      border-radius: 4px;
-      color: #fff;
-      font-size: 0.85rem;
-    }
-    .auth-bar button {
-      padding: 0.5rem 1rem;
-      background: #7b5bf5;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    .section {
-      background: #12121a;
-      border: 1px solid #222;
-      border-radius: 8px;
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-
-    /* Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    th, td {
-      text-align: left;
-      padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid #222;
-    }
-    th { color: #888; font-weight: 500; }
-
-    /* Buttons */
-    .btn {
-      padding: 0.35rem 0.7rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: #fff;
-    }
-    .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
-    .btn-primary { background: #7b5bf5; }
-    .btn-primary:hover { background: #6a4be0; }
-    .btn-danger { background: #dc2626; }
-    .btn-danger:hover { background: #b91c1c; }
-    .btn-secondary { background: #333; }
-    .btn-secondary:hover { background: #444; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
-
-    /* Status badges */
-    .badge {
-      display: inline-block;
-      padding: 0.15rem 0.5rem;
-      border-radius: 3px;
-      font-size: 0.75rem;
-    }
-    .badge-ok { background: #166534; color: #4ade80; }
-    .badge-error { background: #7f1d1d; color: #f87171; }
-    .badge-pending { background: #4a3600; color: #fbbf24; }
-
-    /* Forms inline */
-    .inline-form {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-top: 0.75rem;
-    }
-    .inline-form input {
-      padding: 0.4rem 0.6rem;
-      background: #1a1a24;
-      border: 1px solid #333;
-      border-radius: 4px;
-      color: #fff;
-      font-size: 0.85rem;
-    }
-
-    /* Addon list */
-    .addon-list {
-      list-style: none;
-    }
-    .addon-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #1e1e2a;
-    }
-    .addon-item:last-child { border-bottom: none; }
-    .addon-name { font-weight: 500; }
-    .addon-url { font-size: 0.75rem; color: #666; word-break: break-all; }
-
-    /* Preview diff */
-    .preview-user {
-      background: #1a1a24;
-      border-radius: 6px;
-      padding: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-    .preview-user h3 {
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-    }
-    .diff-added { color: #4ade80; }
-    .diff-removed { color: #f87171; }
-    .diff-kept { color: #888; }
-
-    /* Log */
-    .log {
-      background: #0d0d14;
-      border-radius: 4px;
-      padding: 0.75rem;
-      font-size: 0.8rem;
-      max-height: 300px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      font-family: monospace;
-    }
-
-    .empty { color: #666; font-style: italic; font-size: 0.85rem; }
-    .hidden { display: none; }
-  </style>
+  <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
-  <h1>Stremio Config Manager - Admin</h1>
-
-  <div class="auth-bar">
-    <input type="password" id="adminToken" placeholder="Admin token" />
-    <button onclick="saveToken()">Save</button>
-    <span id="authStatus"></span>
+<body class="page-dashboard">
+  <div class="page-header">
+    <h1>Stremio Config Manager</h1>
+    <span class="tag">Admin</span>
   </div>
 
-  <!-- Users section -->
+  <!-- Auth -->
   <div class="section">
-    <h2>Users</h2>
-    <div id="usersContent"><p class="empty">Enter admin token to load data.</p></div>
-    <div id="userAddonsPanel" style="display:none;margin-top:1rem;background:#1a1a24;border-radius:6px;padding:1rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-        <h3 id="userAddonsTitle" style="font-size:0.95rem;margin:0;"></h3>
-        <button class="btn btn-sm btn-secondary" onclick="closeAddonsPanel()">Close</button>
+    <div class="auth-bar">
+      <input class="form-input" type="password" id="adminToken"
+             placeholder="Admin token" aria-label="Admin token">
+      <button class="btn btn-primary" id="saveTokenBtn">
+        <span class="btn-text">Connect</span>
+        <span class="spinner"></span>
+      </button>
+      <span class="auth-status" id="authStatus"></span>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Users</h2>
+      <span class="text-muted text-sm" id="userCount"></span>
+    </div>
+    <div id="usersContent"></div>
+    <div id="userAddonsPanel" class="panel hidden">
+      <div class="panel-header">
+        <h3 id="userAddonsTitle"></h3>
+        <button class="btn btn-sm btn-secondary" id="closeAddonsBtn">Close</button>
       </div>
       <div id="userAddonsList"></div>
     </div>
   </div>
 
-  <!-- Master Config section -->
+  <!-- Master Config -->
   <div class="section">
-    <h2>Master Config</h2>
-    <div id="configContent"><p class="empty">Enter admin token to load data.</p></div>
-    <div class="inline-form" id="importForm" style="margin-top:1rem;">
-      <input type="email" id="importEmail" placeholder="Stremio email">
-      <input type="password" id="importPassword" placeholder="Stremio password">
-      <button class="btn btn-secondary" onclick="importConfig()">Import from account</button>
+    <div class="section-header">
+      <h2>Master Config</h2>
+      <span class="text-muted text-sm" id="configCount"></span>
+    </div>
+    <div id="configContent"></div>
+    <div class="form-row mt-1">
+      <input class="form-input" type="email" id="importEmail" placeholder="Stremio email">
+      <input class="form-input" type="password" id="importPassword" placeholder="Stremio password">
+      <button class="btn btn-secondary" id="importConfigBtn">
+        <span class="btn-text">Import from account</span>
+        <span class="spinner"></span>
+      </button>
     </div>
   </div>
 
-  <!-- Deploy section -->
+  <!-- Deploy -->
   <div class="section">
-    <h2>Deploy</h2>
-    <div class="actions">
-      <button class="btn btn-secondary" onclick="previewDeploy()" id="previewBtn">Preview changes</button>
-      <button class="btn btn-primary" onclick="executeDeploy()" id="deployBtn">Deploy to all</button>
+    <div class="section-header">
+      <h2>Deploy</h2>
     </div>
-    <div id="previewContent" style="margin-top:1rem;"></div>
-    <div id="deployResult" style="margin-top:1rem;"></div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="previewBtn">
+        <span class="btn-text">Preview changes</span>
+        <span class="spinner"></span>
+      </button>
+      <button class="btn btn-primary" id="deployBtn">
+        <span class="btn-text">Deploy to all</span>
+        <span class="spinner"></span>
+      </button>
+    </div>
+    <div id="previewContent" class="mt-1"></div>
+    <div id="deployResult" class="mt-1"></div>
   </div>
 
-  <!-- Logs section -->
+  <!-- Logs -->
   <div class="section">
-    <h2>Recent Logs</h2>
-    <div id="logsContent"><p class="empty">Enter admin token to load data.</p></div>
+    <div class="section-header">
+      <h2>Recent Logs</h2>
+    </div>
+    <div id="logsContent"></div>
   </div>
 
-  <script>
-    let token = sessionStorage.getItem('adminToken') || '';
+  <!-- Modal (reused) -->
+  <div id="modalOverlay" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
 
-    if (token) {
-      document.getElementById('adminToken').value = token;
-      saveToken();
-    }
-
-    async function saveToken() {
-      token = document.getElementById('adminToken').value.trim();
-      sessionStorage.setItem('adminToken', token);
-      const status = document.getElementById('authStatus');
-      if (!token) {
-        status.innerHTML = '<span style="color:#f87171">No token</span>';
-        return;
-      }
-      try {
-        await api('users');
-        status.innerHTML = '<span style="color:#4ade80">Connected</span>';
-        loadAll();
-      } catch (e) {
-        status.innerHTML = '<span style="color:#f87171">Invalid token</span>';
-      }
-    }
-
-    function api(path, options = {}) {
-      return fetch(`../api/${path}`, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          ...(options.headers || {}),
-        },
-      }).then(async r => {
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
-        return data;
-      });
-    }
-
-    async function loadAll() {
-      await Promise.all([loadUsers(), loadConfig(), loadDeployStatus(), loadLogs()]);
-    }
-
-    // --- Users ---
-    async function loadUsers() {
-      const el = document.getElementById('usersContent');
-      try {
-        const { users } = await api('users');
-        if (users.length === 0) {
-          el.innerHTML = '<p class="empty">No users enrolled yet.</p>';
-          return;
-        }
-        el.innerHTML = `<table>
-          <thead><tr><th>Email</th><th>Enrolled</th><th>Last sync</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>${users.map(u => `<tr>
-            <td>${esc(u.email)}</td>
-            <td>${fmtDate(u.created_at)}</td>
-            <td>${u.last_sync_at ? fmtDate(u.last_sync_at) : '-'}</td>
-            <td>${u.last_sync_status ? `<span class="badge badge-${u.last_sync_status === 'ok' ? 'ok' : 'error'}">${esc(u.last_sync_status)}</span>` : '<span class="badge badge-pending">new</span>'}</td>
-            <td class="btn-group">
-              <button class="btn btn-sm btn-primary" onclick="viewAddons(${u.id},'${esc(u.email)}')">Addons</button>
-              <button class="btn btn-sm btn-secondary" onclick="importFromUser(${u.id},'${esc(u.email)}')">Use as master</button>
-              <button class="btn btn-sm btn-secondary" onclick="testUser(${u.id})">Test</button>
-              <button class="btn btn-sm btn-secondary" onclick="syncUser(${u.id})">Sync</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id},'${esc(u.email)}')">Delete</button>
-            </td>
-          </tr>`).join('')}</tbody>
-        </table>`;
-      } catch (e) {
-        el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
-      }
-    }
-
-    async function viewAddons(id, email) {
-      const panel = document.getElementById('userAddonsPanel');
-      const title = document.getElementById('userAddonsTitle');
-      const list = document.getElementById('userAddonsList');
-      panel.style.display = 'block';
-      title.textContent = `Addons - ${email}`;
-      list.innerHTML = '<p class="empty">Loading...</p>';
-
-      try {
-        const data = await api(`users/${id}/addons`);
-        if (data.addons.length === 0) {
-          list.innerHTML = '<p class="empty">No addons.</p>';
-          return;
-        }
-        list.innerHTML = `<ul class="addon-list">${data.addons.map(a => `<li class="addon-item">
-          <div>
-            <span class="addon-name">${esc(a.name)}</span>
-            ${a.protected ? '<span class="badge badge-pending" style="margin-left:0.4rem">protected</span>' : ''}
-            ${a.official ? '<span class="badge badge-ok" style="margin-left:0.4rem">official</span>' : ''}
-            <div class="addon-url">${esc(a.transportUrl)}</div>
-          </div>
-          ${!a.protected ? `<button class="btn btn-sm btn-danger" onclick="removeUserAddon(${id},'${esc(email)}','${esc(a.transportUrl).replace(/'/g, "\\'")}','${esc(a.name)}')">Remove</button>` : ''}
-        </li>`).join('')}</ul>`;
-      } catch (e) {
-        list.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
-      }
-    }
-
-    function closeAddonsPanel() {
-      document.getElementById('userAddonsPanel').style.display = 'none';
-    }
-
-    async function removeUserAddon(id, email, url, name) {
-      if (!confirm(`Remove "${name}" from ${email}?`)) return;
-      try {
-        const res = await api(`users/${id}/addons/remove`, {
-          method: 'POST',
-          body: JSON.stringify({ urls: [url] }),
-        });
-        alert(`Removed ${res.removed} addon(s)`);
-        viewAddons(id, email); // Refresh
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    async function importFromUser(id, email) {
-      if (!confirm(`Import ${email}'s current addons as master config?`)) return;
-      try {
-        const res = await api('config/import-from-user', {
-          method: 'POST',
-          body: JSON.stringify({ userId: id }),
-        });
-        alert(`Imported ${res.imported} addons (${res.skippedProtected} protected skipped)`);
-        loadConfig();
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    async function testUser(id) {
-      try {
-        const res = await api(`users/${id}/test`, { method: 'POST' });
-        alert(res.success ? 'Connection OK' : `Failed: ${res.message}`);
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    async function syncUser(id) {
-      if (!confirm('Deploy master config to this user?')) return;
-      try {
-        await api(`users/${id}/sync`, { method: 'POST' });
-        alert('Sync complete');
-        loadUsers();
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    async function deleteUser(id, email) {
-      if (!confirm(`Remove ${email}?`)) return;
-      try {
-        await api(`users/${id}`, { method: 'DELETE' });
-        loadUsers();
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    // --- Config ---
-    async function loadConfig() {
-      const el = document.getElementById('configContent');
-      try {
-        const { addons, updatedAt } = await api('config');
-        if (addons.length === 0) {
-          el.innerHTML = '<p class="empty">No master config set. Import from your account to get started.</p>';
-          return;
-        }
-        el.innerHTML = `<p style="font-size:0.8rem;color:#888;margin-bottom:0.5rem">${addons.length} addons (updated ${fmtDate(updatedAt)})</p>
-          <ul class="addon-list">${addons.map((a, i) => `<li class="addon-item">
-            <div>
-              <span class="addon-name">${esc(a.manifest?.name || a.manifest?.id || 'Unknown')}</span>
-              <div class="addon-url">${esc(a.transportUrl)}</div>
-            </div>
-            <button class="btn btn-sm btn-danger" onclick="removeAddon(${i})">Remove</button>
-          </li>`).join('')}</ul>`;
-      } catch (e) {
-        el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
-      }
-    }
-
-    async function removeAddon(index) {
-      try {
-        const { addons } = await api('config');
-        addons.splice(index, 1);
-        await api('config', {
-          method: 'POST',
-          body: JSON.stringify({ addons }),
-        });
-        loadConfig();
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    async function importConfig() {
-      const email = document.getElementById('importEmail').value.trim();
-      const password = document.getElementById('importPassword').value;
-      if (!email || !password) return alert('Enter email and password');
-
-      try {
-        const res = await api('config/import', {
-          method: 'POST',
-          body: JSON.stringify({ email, password }),
-        });
-        alert(`Imported ${res.imported} addons (${res.skippedProtected} protected skipped)`);
-        document.getElementById('importEmail').value = '';
-        document.getElementById('importPassword').value = '';
-        loadConfig();
-      } catch (e) { alert(`Error: ${e.message}`); }
-    }
-
-    // --- Deploy ---
-    async function previewDeploy() {
-      const el = document.getElementById('previewContent');
-      const btn = document.getElementById('previewBtn');
-      btn.disabled = true;
-      btn.textContent = 'Loading preview...';
-      el.innerHTML = '';
-
-      try {
-        const preview = await api('deploy/preview', { method: 'POST' });
-        if (preview.users.length === 0) {
-          el.innerHTML = '<p class="empty">No users to preview.</p>';
-          return;
-        }
-
-        el.innerHTML = preview.users.map(u => {
-          if (u.status === 'error') {
-            return `<div class="preview-user">
-              <h3>${esc(u.email)} <span class="badge badge-error">error</span></h3>
-              <p style="color:#f87171;font-size:0.85rem">${esc(u.error)}</p>
-            </div>`;
-          }
-          const d = u.diff;
-          const noChanges = d.added.length === 0 && d.removed.length === 0 && !d.orderChanged;
-          return `<div class="preview-user">
-            <h3>${esc(u.email)} <span class="badge badge-ok">${noChanges ? 'no changes' : 'changes'}</span></h3>
-            ${d.added.length ? `<p class="diff-added">+ ${d.added.map(a => esc(a.name || a.transportUrl)).join(', ')}</p>` : ''}
-            ${d.removed.length ? `<p class="diff-removed">- ${d.removed.map(a => esc(a.name || a.transportUrl)).join(', ')}</p>` : ''}
-            ${d.orderChanged && d.added.length === 0 && d.removed.length === 0 ? '<p style="color:#fbbf24;font-size:0.85rem">Order will change</p>' : ''}
-          </div>`;
-        }).join('');
-      } catch (e) {
-        el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Preview changes';
-      }
-    }
-
-    async function executeDeploy() {
-      if (!confirm('Deploy master config to ALL users?')) return;
-      const el = document.getElementById('deployResult');
-      const btn = document.getElementById('deployBtn');
-      btn.disabled = true;
-      btn.textContent = 'Deploying...';
-
-      try {
-        const result = await api('deploy', { method: 'POST' });
-        el.innerHTML = `<div class="log">Deploy completed: ${result.completed} ok, ${result.failed} failed\n\n${result.results.map(r =>
-          `${r.email}: ${r.status}${r.status === 'error' ? ' - ' + r.error : ''}`
-        ).join('\n')}</div>`;
-        loadUsers();
-      } catch (e) {
-        el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Deploy to all';
-      }
-    }
-
-    async function loadDeployStatus() {
-      try {
-        const status = await api('deploy/status');
-        if (status.message) return; // No deploy yet
-        const el = document.getElementById('deployResult');
-        if (status.finishedAt) {
-          el.innerHTML = `<p style="font-size:0.8rem;color:#888">Last deploy: ${fmtDate(status.finishedAt)} - ${status.completed} ok, ${status.failed} failed</p>`;
-        }
-      } catch {}
-    }
-
-    // --- Logs ---
-    async function loadLogs() {
-      const el = document.getElementById('logsContent');
-      try {
-        const { logs } = await api('deploy/logs?limit=30');
-        if (logs.length === 0) {
-          el.innerHTML = '<p class="empty">No logs yet.</p>';
-          return;
-        }
-        el.innerHTML = `<div class="log">${logs.map(l =>
-          `${fmtDate(l.created_at)}  ${esc(l.email || 'unknown')}  ${l.action}  <span class="badge badge-${l.status === 'ok' ? 'ok' : 'error'}">${l.status}</span>  ${esc(l.message?.substring(0, 100) || '')}`
-        ).join('\n')}</div>`;
-      } catch (e) {
-        el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
-      }
-    }
-
-    // --- Helpers ---
-    function esc(str) {
-      const d = document.createElement('div');
-      d.textContent = str || '';
-      return d.innerHTML;
-    }
-
-    function fmtDate(iso) {
-      if (!iso) return '-';
-      const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');
-      return d.toLocaleString();
-    }
-  </script>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+  <script type="module" src="../js/admin.js"></script>
 </body>
 </html>

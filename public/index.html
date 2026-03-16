@@ -5,115 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>Stremio Config Manager</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0f;
-      color: #e0e0e0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      width: 100%;
-      max-width: 400px;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 0.5rem;
-      color: #fff;
-    }
-    .subtitle {
-      color: #888;
-      font-size: 0.85rem;
-      margin-bottom: 2rem;
-    }
-    .form-group {
-      margin-bottom: 1rem;
-    }
-    label {
-      display: block;
-      font-size: 0.8rem;
-      color: #aaa;
-      margin-bottom: 0.3rem;
-    }
-    input {
-      width: 100%;
-      padding: 0.7rem;
-      background: #1a1a24;
-      border: 1px solid #333;
-      border-radius: 6px;
-      color: #fff;
-      font-size: 0.95rem;
-    }
-    input:focus {
-      outline: none;
-      border-color: #7b5bf5;
-    }
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      background: #7b5bf5;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      margin-top: 0.5rem;
-    }
-    button:hover { background: #6a4be0; }
-    button:disabled {
-      background: #444;
-      cursor: not-allowed;
-    }
-    .message {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      display: none;
-    }
-    .message.success {
-      display: block;
-      background: #0d2818;
-      color: #4ade80;
-      border: 1px solid #166534;
-    }
-    .message.error {
-      display: block;
-      background: #2d1215;
-      color: #f87171;
-      border: 1px solid #7f1d1d;
-    }
-    .info {
-      margin-top: 2rem;
-      font-size: 0.75rem;
-      color: #666;
-      line-height: 1.4;
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <div class="container">
+<body class="page-center">
+  <div class="container-sm">
     <h1>Stremio Config Manager</h1>
     <p class="subtitle">Connect your Stremio account to receive addon updates automatically.</p>
 
-    <form id="enrollForm">
+    <form id="enrollForm" novalidate>
       <div class="form-group">
-        <label for="email">Stremio Email</label>
-        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+        <label class="form-label" for="email">Stremio Email</label>
+        <input class="form-input" type="email" id="email" name="email"
+               required autocomplete="email" placeholder="you@example.com">
+        <span class="form-error"></span>
       </div>
       <div class="form-group">
-        <label for="password">Stremio Password</label>
-        <input type="password" id="password" name="password" required autocomplete="current-password">
+        <label class="form-label" for="password">Stremio Password</label>
+        <input class="form-input" type="password" id="password" name="password"
+               required autocomplete="current-password">
+        <span class="form-error"></span>
       </div>
-      <button type="submit" id="submitBtn">Connect my account</button>
+      <button class="btn btn-primary btn-block" type="submit" id="submitBtn">
+        <span class="btn-text">Connect my account</span>
+        <span class="spinner"></span>
+      </button>
     </form>
-
-    <div id="message" class="message"></div>
 
     <p class="info">
       Your credentials are sent directly to the official Stremio API and stored encrypted.
@@ -121,45 +37,7 @@
     </p>
   </div>
 
-  <script>
-    const form = document.getElementById('enrollForm');
-    const msg = document.getElementById('message');
-    const btn = document.getElementById('submitBtn');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      msg.className = 'message';
-      btn.disabled = true;
-      btn.textContent = 'Connecting...';
-
-      try {
-        const res = await fetch('api/enroll', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: document.getElementById('email').value.trim(),
-            password: document.getElementById('password').value,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          msg.textContent = 'Account connected successfully! You will receive addon updates automatically.';
-          msg.className = 'message success';
-          form.reset();
-        } else {
-          msg.textContent = data.error || 'Something went wrong';
-          msg.className = 'message error';
-        }
-      } catch {
-        msg.textContent = 'Connection error. Please try again.';
-        msg.className = 'message error';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Connect my account';
-      }
-    });
-  </script>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+  <script type="module" src="js/enroll.js"></script>
 </body>
 </html>

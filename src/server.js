@@ -50,9 +50,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
       imgSrc: ["'self'", "data:"],
       connectSrc: ["'self'"],
     },
@@ -82,6 +81,9 @@ const enrollLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many attempts, try again later' },
 });
+
+// Static files (css/, js/)
+appRouter.use(express.static(path.join(__dirname, '../public')));
 
 // Public routes
 appRouter.get('/', (req, res) => {
