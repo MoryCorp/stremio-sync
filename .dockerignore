@@ -1,0 +1,14 @@
+.git
+.github
+node_modules/
+data/
+.env
+.env.*
+!.env.example
+CLAUDE.md
+.claude/
+*.md
+!README.md
+.gitignore
+.dockerignore
+docker-compose.yml

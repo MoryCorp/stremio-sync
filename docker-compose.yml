@@ -1,0 +1,13 @@
+services:
+  stremio-config-manager:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - SITE_TOKEN=${SITE_TOKEN}
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - PORT=3000
+    volumes:
+      - ./data:/app/data
