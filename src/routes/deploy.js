@@ -17,6 +17,19 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.post('/clean', async (req, res) => {
+  try {
+    const result = await deployAll(null, { clean: true });
+    res.json(result);
+  } catch (err) {
+    if (err.message === 'Deploy already in progress') {
+      return res.status(409).json({ error: err.message });
+    }
+    console.error('Clean deploy error:', err.message);
+    res.status(500).json({ error: 'Clean deploy failed' });
+  }
+});
+
 router.post('/preview', async (req, res) => {
   if (isDeployInProgress()) {
     return res.status(409).json({ error: 'Deploy in progress, cannot preview' });

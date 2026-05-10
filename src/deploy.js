@@ -40,19 +40,21 @@ export function computeDiff(currentAddons, mergedAddons) {
   };
 }
 
-async function deployToUser(userId, masterAddons) {
+async function deployToUser(userId, masterAddons, { clean = false } = {}) {
   return withReauth(userId, async (authKey) => {
     const currentAddons = await getAddons(authKey);
 
     // Backup current state
     addSyncLog(userId, 'backup', 'ok', JSON.stringify(currentAddons));
 
-    const merged = mergeAddons(currentAddons, masterAddons);
-    await setAddons(authKey, merged);
+    const next = clean
+      ? [...currentAddons.filter(a => a.flags?.protected), ...masterAddons]
+      : mergeAddons(currentAddons, masterAddons);
+    await setAddons(authKey, next);
 
-    const diff = computeDiff(currentAddons, merged);
+    const diff = computeDiff(currentAddons, next);
     updateUserSyncStatus(userId, 'ok');
-    addSyncLog(userId, 'deploy', 'ok', JSON.stringify(diff));
+    addSyncLog(userId, clean ? 'clean_deploy' : 'deploy', 'ok', JSON.stringify(diff));
 
     return diff;
   });
@@ -98,7 +100,7 @@ export async function previewDeploy(userIds = null) {
   };
 }
 
-export async function deployAll(userIds = null) {
+export async function deployAll(userIds = null, { clean = false } = {}) {
   if (deployInProgress) {
     throw new Error('Deploy already in progress');
   }
@@ -112,6 +114,7 @@ export async function deployAll(userIds = null) {
 
   lastDeployStatus = {
     startedAt: new Date().toISOString(),
+    clean,
     total: targetUsers.length,
     completed: 0,
     failed: 0,
@@ -121,7 +124,7 @@ export async function deployAll(userIds = null) {
   try {
     for (const user of targetUsers) {
       try {
-        const diff = await deployToUser(user.id, masterAddons);
+        const diff = await deployToUser(user.id, masterAddons, { clean });
         lastDeployStatus.completed++;
         lastDeployStatus.results.push({
           userId: user.id,

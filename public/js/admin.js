@@ -301,10 +301,23 @@ $('previewBtn').addEventListener('click', async () => {
 $('deployBtn').addEventListener('click', async () => {
   const ok = await modal.confirm('Deploy', 'Deploy master config to ALL users?', { confirmText: 'Deploy' });
   if (!ok) return;
+  await runDeploy('deploy', $('deployBtn'));
+});
 
-  await withLoading($('deployBtn'), async () => {
+$('cleanDeployBtn').addEventListener('click', async () => {
+  const ok = await modal.confirm(
+    'Clean deploy',
+    'Wipe ALL non-protected addons from every user, then install only the master config. Personal addons will be lost. Continue?',
+    { danger: true, confirmText: 'Clean deploy' }
+  );
+  if (!ok) return;
+  await runDeploy('deploy/clean', $('cleanDeployBtn'));
+});
+
+async function runDeploy(endpoint, btn) {
+  await withLoading(btn, async () => {
     try {
-      const result = await api('deploy', { method: 'POST' });
+      const result = await api(endpoint, { method: 'POST' });
       deployResult.innerHTML = `<div class="log-viewer">${result.results.map(r =>
         `<div class="log-entry"><span>${esc(r.email)}</span> <span class="badge badge-${r.status === 'ok' ? 'ok' : 'error'}">${r.status}</span>${r.status === 'error' ? ` <span class="text-error text-sm">${esc(r.error)}</span>` : ''}</div>`
       ).join('')}</div>`;
@@ -312,7 +325,7 @@ $('deployBtn').addEventListener('click', async () => {
       loadUsers();
     } catch (err) { toast.error(err.message); }
   });
-});
+}
 
 async function loadDeployStatus() {
   try {
